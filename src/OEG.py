@@ -1,6 +1,6 @@
 from geofs import MapAPI
 import time
-from callsigns import parseCallsigns
+from callsigns import checkCallsignChanges
 
 def main():
     print("Starting Tracking...")
@@ -11,7 +11,7 @@ def main():
             print("No data received, retrying...")
             time.sleep(5)
             continue
-        parseCallsigns(data)
+        checkCallsignChanges(data)
         time.sleep(1)
 
 if __name__ == "__main__":
