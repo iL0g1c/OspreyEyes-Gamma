@@ -25,7 +25,6 @@ def removeDuplicateAccounts(users):
     return uniqueUsers
 
 def checkCallsignChanges(users):
-    
     users = removeDuplicateAccounts(users)
     alerts = []
     for user in users:

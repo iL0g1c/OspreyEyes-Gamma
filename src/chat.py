@@ -1,13 +1,12 @@
 from dotenv import load_dotenv
 import os
 import urllib.parse
-from geofs import multiplayerAPI
+import time
+from api import getCredentials, getChatMessages
 
 load_dotenv()
-password = os.environ.get("MONGODB_PWD")
 geofs_session_id = os.environ.get("GEOFS_SESSION_ID")
-multiplayerAPI = multiplayerAPI(geofs_session_id, 893868)
-multiplayerAPI.handshake()
+ACCOUNTID = 897690
 
 def parseChat(messages):
     msg = ""
@@ -16,8 +15,20 @@ def parseChat(messages):
         msg += f"({message['acid']}){message['cs']}> {message['msg']}\n"
     return msg
 
-def saveChatMessages():
-    messages = multiplayerAPI.getMessages()
-    print(messages)
+def saveChatMessages(ACCOUNTID):
+    id, lastMsgID = getCredentials(ACCOUNTID)
+    while True:
+        try:
+            id, lastMsgID, messages = getChatMessages(id, ACCOUNTID, lastMsgID)
+            print(messages)
+            break
+        except Exception as e:
+            print("Failed to get chat messages, retrying...")
+            print(e)
+            time.sleep(5)
+            continue
+
     parsed_messages = parseChat(messages)
     print(parsed_messages)
+    print(1)
+    return id
