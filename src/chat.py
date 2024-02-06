@@ -29,6 +29,4 @@ def saveChatMessages(ACCOUNTID):
             continue
 
     parsed_messages = parseChat(messages)
-    print(parsed_messages)
-    print(1)
     return id

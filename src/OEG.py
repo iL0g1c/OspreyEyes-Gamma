@@ -26,13 +26,13 @@ def main(push_to_geofs):
                     if (push_to_geofs):
                         id, lastMsgID = getCredentials(ACCOUNTID)
                         id = sendMsg(msg, id, ACCOUNTID)
+                        time.sleep(1)
                     break
                 except Exception as e:
                     print("Failed to send message, retrying...")
                     print(e)
                     time.sleep(5)
                     continue
-            time.sleep(1)
         id = saveChatMessages(ACCOUNTID)
 
 if __name__ == "__main__":
