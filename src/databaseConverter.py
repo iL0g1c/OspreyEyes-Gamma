@@ -1,8 +1,8 @@
 from pymongo import MongoClient
 from datetime import datetime
 import os
-import jsonlines
 from bson import json_util
+import json
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -14,15 +14,14 @@ def loadCallsignFile():
 	if not os.path.exists("callsigns.jsonl"):
 		return 1, None
 	callsignData = []
-	with jsonlines.open("callsigns.jsonl") as reader:
+	with open("callsigns.jsonl") as reader:
 		for obj in reader:
 			callsignData.append(obj)
 	return None, callsignData
 
 def saveCallsignFile(callsignData):
-	with jsonlines.open("callsigns.jsonl", mode = 'w') as writer:
-		for item in callsignData:
-			writer.write(item)
+	with open("callsigns.json", mode = 'w') as writer:
+		json.dump(callsignData, writer)
 
 def string_to_datetime(string):
     datetime_obj = datetime.strptime(string, "%Y-%m-%d %H-%M-%S")
