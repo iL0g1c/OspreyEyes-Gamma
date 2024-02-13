@@ -11,6 +11,17 @@ def getMapUsers():
     response_body = json.loads(response.text)
     userList = response_body["users"]
     return userList
+
+def getPlayerCount():
+    response = requests.post(
+        "https://mps.geo-fs.com/map",
+        json = {}
+    )
+
+    response_body = json.loads(response.text)
+    playerCount = response_body["userCount"]
+    return playerCount
+
 def getCredentials(acid, geofs_session_id):
     body = {
         "acid":acid,

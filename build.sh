@@ -9,3 +9,4 @@ cp ../../src/api.py .
 cp ../../src/chat.py .
 cp ../../src/OEG.py .
 cp ../../requirements.txt .
+cp ../../src/playerCount.py .
