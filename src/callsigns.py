@@ -3,6 +3,7 @@ import os
 from pymongo import MongoClient
 from dotenv import load_dotenv
 import json
+from operator import itemgetter
 
 # MongoDB connection
 load_dotenv()
@@ -25,32 +26,39 @@ def removeDuplicateAccounts(users):
     return uniqueUsers
 
 def checkCallsignChanges(users):
-    users = removeDuplicateAccounts(users)
+    users = removeDuplicateAccounts(users) # Remove duplicate accounts patch for multi tab exploit
+
+    # gets all users from database that are currently online
+    accountIds = list(map(itemgetter("acid"), users))
     alerts = []
-    for user in users:
-        if user["acid"] is not None and user["cs"] != "" and user["cs"] != "Foo":
-            query = {"acid": user["acid"]}
-            accountData = callsigns.find_one(query)
-            # Check if user is in database
-            if accountData:
-                if accountData["cur_callsign"] != user["cs"]:
-                    # Update account with new callsign
-                    old_callsign = accountData["cur_callsign"]
-                    accountData["cur_callsign"] = user["cs"]
-                    now = datetime.now()
-                    if user["cs"] not in accountData["callsigns"]:
-                        accountData["callsigns"][user["cs"]] = [now]
-                    else:
-                        accountData["callsigns"][user["cs"]].append(now)
-                    callsigns.update_one(query, {"$set": accountData})
-                    alerts.append(f"{user['acid']}({old_callsign}) changed their callsign to {user['cs']}\n")
+    usersInDatabase = list(callsigns.find({"acid": {"$in": accountIds}})) # get users from database that are online
+
+    # checks if callsign has changed for users in the database
+    for accountData in usersInDatabase:
+        user = next(item for item in users if item["acid"] == accountData["acid"])
+        if accountData["cur_callsign"] != user["cs"]:
+            # Update account with new callsign
+            old_callsign = accountData["cur_callsign"]
+            accountData["cur_callsign"] = user["cs"]
+            now = datetime.now()
+            if user["cs"] not in accountData["callsigns"]:
+                accountData["callsigns"][user["cs"]] = [now]
             else:
-                # Create new account entry
-                now = datetime.now()
-                newAccountData = {
-                    "acid": int(user["acid"]),
-                    "cur_callsign": user["cs"],
-                    "callsigns": {user["cs"]: [now]}
-                }
-                callsigns.insert_one(newAccountData)
+                accountData["callsigns"][user["cs"]].append(now)
+            callsigns.update_one({"acid": user["acid"]}, {"$set": accountData})
+            alerts.append(f"{user['acid']}({old_callsign}) changed their callsign to {user['cs']}\n")
+    
+    newAccounts = []
+    accountIdsInDatabase = list(map(itemgetter("acid"), usersInDatabase))
+    for user in users:
+        if user["acid"] not in accountIdsInDatabase and user["acid"] != None and isinstance(user["acid"], int):
+            # Create new account entries for users not in the database
+            now = datetime.now()
+            newAccounts.append({
+                "acid": int(user["acid"]),
+                "cur_callsign": user["cs"],
+                "callsigns": {user["cs"]: [now]}
+            })
+    if len(newAccounts) > 0:
+        callsigns.insert_many(newAccounts)
     return alerts

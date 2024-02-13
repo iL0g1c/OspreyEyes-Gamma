@@ -15,12 +15,10 @@ def parseChat(messages):
         msg += f"({message['acid']}){message['cs']}> {message['msg']}\n"
     return msg
 
-def saveChatMessages(ACCOUNTID):
-    id, lastMsgID = getCredentials(ACCOUNTID)
+def saveChatMessages(geofs_account_id, geofs_session_id, id, lastMsgId):
     while True:
         try:
-            id, lastMsgID, messages = getChatMessages(id, ACCOUNTID, lastMsgID)
-            print(messages)
+            id, lastMsgID, messages = getChatMessages(geofs_account_id, geofs_session_id, id, lastMsgId)
             break
         except Exception as e:
             print("Failed to get chat messages, retrying...")
@@ -29,4 +27,4 @@ def saveChatMessages(ACCOUNTID):
             continue
 
     parsed_messages = parseChat(messages)
-    return id
+    return id, lastMsgID
