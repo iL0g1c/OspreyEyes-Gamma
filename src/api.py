@@ -1,5 +1,6 @@
 import requests
 import json
+import time
 
 def getMapUsers():
     response = requests.post(
@@ -14,13 +15,35 @@ def getCredentials(acid, geofs_session_id):
     body = {
         "acid":acid,
         "sid":geofs_session_id,
-        "id":"","ac":"24",
+        "id":"",
+        "ac":"24",
         "co":[51.16707412918196,-0.08848770230371465,69.26255848717521,-56.08184334084648,0,0],
         "ve":[7.105427357601002e-18,1.3877787807814457e-20,1.0154927565508843e-10,0,0,0],
         "st":{"gr":True,"as":0},
         "ti":1707753106276,
         "m":"",
         "ci":0
+    }
+    response = requests.post(
+        "https://mps.geo-fs.com/update",
+        json = body,
+        cookies = {"PHPSESSID": geofs_session_id}
+    )
+    response_body = json.loads(response.text)
+    id = response_body["myId"]
+    lastMsgId = response_body["lastMsgId"]
+    time.sleep(1)
+    body = {
+        "acid":acid,
+        "sid":geofs_session_id,
+        "id":id,
+        "ac":"24",
+        "co":[51.16707412918196,-0.08848770230371465,69.26255848717521,-56.08184334084648,0,0],
+        "ve":[7.105427357601002e-18,1.3877787807814457e-20,1.0154927565508843e-10,0,0,0],
+        "st":{"gr":True,"as":0},
+        "ti":1707753106276,
+        "m":"",
+        "ci":lastMsgId
     }
     response = requests.post(
         "https://mps.geo-fs.com/update",
