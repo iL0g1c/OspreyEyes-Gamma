@@ -46,6 +46,7 @@ def main(push_to_geofs):
             while True:
                 try:
                     if (push_to_geofs):
+                        print(msg)
                         id, lastMsgID = sendMsg(geofs_account_id, geofs_session_id, id, lastMsgID, msg)
                         time.sleep(1)
                     else:
