@@ -59,7 +59,6 @@ def checkCallsignChanges(users):
                 "cur_callsign": user["cs"],
                 "callsigns": {user["cs"]: [now]}
             })
-            alerts.append(f"{user['acid']} created their first callsign: {user['cs']}\n")
     if len(newAccounts) > 0:
         callsigns.insert_many(newAccounts)
     return alerts
