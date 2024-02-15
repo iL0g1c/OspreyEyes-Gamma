@@ -63,8 +63,8 @@ def main(push_to_geofs, callsignchanges, chatmessages, playercount, logon_logoff
             time.sleep(5)
             continue
         if (callsignchanges):
-            callsignchanges = checkCallsignChanges(data) # Get callsign changes
-            for msg in callsignchanges: # Send callsign changes
+            changedCallsigns = checkCallsignChanges(data) # Get callsign changes
+            for msg in changedCallsigns: # Send callsign changes
                 while True:
                     try:
                         if (push_to_geofs):
@@ -100,10 +100,9 @@ def main(push_to_geofs, callsignchanges, chatmessages, playercount, logon_logoff
                 nextPlayerCountLog = datetime.now() + timedelta(hours=1)
         if (logon_logoff):
             activityAlerts = updateOnlineUsers(data)
-            if activityAlerts != []:
-                for alert in activityAlerts:
-                    # print(activityAlerts)
-                    pass
+            # if activityAlerts != []:
+            #     for alert in activityAlerts:
+            #         print(activityAlerts)
 
 
 if __name__ == "__main__":

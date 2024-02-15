@@ -26,7 +26,6 @@ def updateOnlineUsers(users):
                 user = item
                 break
         if (accountData["currentStatus"] == 0):
-            accountData["currentStatus"] = 1
             accountData["times"].append({
                 "status": 1,
                 "time": datetime.now()
@@ -34,7 +33,11 @@ def updateOnlineUsers(users):
             updateOperations.append(
                 UpdateOne(
                     {"acid": accountData["acid"]},
-                    {"$set": accountData}
+                    {"$set": {
+                        "currentStatus": 1,
+                        "times": accountData["times"]
+                    
+                    }}
                 )
             )
             alerts.append(f"{user['acid']} | {user['cs']} came online.\n")
@@ -50,7 +53,6 @@ def updateOnlineUsers(users):
                 user = item
                 break
         if accountData["acid"] not in currentOnlineUsers:
-            accountData["currentStatus"] = 0
             accountData["times"].append({
                 "status": 0,
                 "time": datetime.now()
@@ -58,7 +60,10 @@ def updateOnlineUsers(users):
             updateOperations.append(
                 UpdateOne(
                     {"acid": accountData["acid"]},
-                    {"$set": accountData}
+                    {"$set": {
+                        "currentStatus": 0,
+                        "times": accountData["times"]
+                    }}
                 )
             )
             alerts.append(f"{user['acid']} | {user['cs']} came offline.\n")

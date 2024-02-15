@@ -32,7 +32,7 @@ def checkCallsignChanges(users):
     accountIds = list(map(itemgetter("acid"), users))
     alerts = []
     usersInDatabase = list(callsigns.find({"acid": {"$in": accountIds}})) # get users from database that are online
-
+    
     # checks if callsign has changed for users in the database
     for accountData in usersInDatabase:
         user = next(item for item in users if item["acid"] == accountData["acid"])
@@ -47,7 +47,7 @@ def checkCallsignChanges(users):
                 accountData["callsigns"][user["cs"]].append(now)
             callsigns.update_one({"acid": user["acid"]}, {"$set": accountData})
             alerts.append(f"{user['acid']}({old_callsign}) changed their callsign to {user['cs']}\n")
-    
+
     newAccounts = []
     accountIdsInDatabase = list(map(itemgetter("acid"), usersInDatabase))
     for user in users:
