@@ -35,6 +35,9 @@ def processChatMessages(geofs_account_id, geofs_session_id, id, lastMsgId):
         except Exception as e:
             print("Failed to get chat messages, retrying...")
             print(e)
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
             time.sleep(5)
             continue
     parsed_messages = parseChat(messages)
