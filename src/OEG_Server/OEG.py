@@ -9,6 +9,7 @@ from api import getMapUsers, getCredentials, sendMsg, getPlayerCount
 from chat import processChatMessages
 from playerCount import savePlayerCount
 from onlineDetector import updateOnlineUsers
+from clusterer import ClusterTracker
 
 @click.command()
 @click.option("--push-to-geofs", "--geofs", is_flag=True, help="Send callsigns changes to GeoFS chat.")
@@ -16,17 +17,17 @@ from onlineDetector import updateOnlineUsers
 @click.option("--chatMessages", "--cm", is_flag=True, help="Log chat messages.")
 @click.option("--playerCount", "--pc", is_flag=True, help="Log player count.")
 @click.option("--logon-logoff", "--ll", is_flag=True, help="Log logon and logoff event tracking.")
-def main(push_to_geofs, callsignchanges, chatmessages, playercount, logon_logoff):
-    if (push_to_geofs):
-        print("WARNING: Pushing messages to GeoFS chat.")
-
+@click.option("--clusterer", "--cl", is_flag=True, help="Enable clustering AI.")
+def main(push_to_geofs, callsignchanges, chatmessages, playercount, logon_logoff, clusterer):
     # Load envs
+    print("Loading envs...")
     load_dotenv()
     geofs_account_id = os.environ.get("GEOFS_ACCOUNT_ID")
     geofs_session_id = os.environ.get("GEOFS_SESSION_ID")
     CHAT_FILE_SAVE_LOCATION = "chat.txt"
 
     # Do handshake
+    print("Doing handshake...")
     id, lastMsgID = getCredentials(geofs_session_id, geofs_account_id)
     time.sleep(1)
 
@@ -35,6 +36,8 @@ def main(push_to_geofs, callsignchanges, chatmessages, playercount, logon_logoff
     # Announce online
     id, lastMsgID = sendMsg(geofs_account_id, geofs_session_id, id, lastMsgID, "OspreyEyes Gamma Online")
 
+    if (push_to_geofs):
+        print("WARNING: Pushing messages to GeoFS chat.")
     if (callsignchanges):
         print("Callsign Tracking Enabled.")
     if (chatmessages):
@@ -43,6 +46,10 @@ def main(push_to_geofs, callsignchanges, chatmessages, playercount, logon_logoff
         print("Player Count Logging Enabled.")
     if (logon_logoff):
         print("Logon/Logoff Tracking Enabled.")
+    if (clusterer):
+        print("Cluster AI Tracking Enabled.")
+        clusterTracker = ClusterTracker(0.5, 4)
+
     print("Starting Tracking...")
 
     while True:
@@ -104,6 +111,13 @@ def main(push_to_geofs, callsignchanges, chatmessages, playercount, logon_logoff
             #     for alert in activityAlerts:
             #         print(activityAlerts)
 
+        if (clusterer):
+            clusterTracker.updatePlayerData(data)
+            clusterTracker.getOfflinePlayers()
+            clusterTracker.getOnlinePlayers()
+            clusterTracker.getNewPlayers()
+            clusterTracker.cluster()
+            
 
 if __name__ == "__main__":
     main()
